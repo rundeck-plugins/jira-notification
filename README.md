@@ -3,8 +3,13 @@
 
 This Notification plugin will append job status as a comment to a Jira ticket.
 
+Here's a screenshot of the notification:
+
+![screenshot](images/screen.png)
+
 Big props to [rcarz](https://github.com/rcarz) and his fantabulous
 [jira-client](https://github.com/rcarz/jira-client) that made this plugin possible.
+
 
 ## Build / Deploy
 
