@@ -12,6 +12,8 @@ import net.rcarz.jiraclient.Issue;
 import net.rcarz.jiraclient.JiraClient;
 import net.rcarz.jiraclient.JiraException;
 
+import java.sql.Timestamp;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -48,17 +50,18 @@ public class JiraNotification implements NotificationPlugin {
         if (null == serverURL) {
             throw new IllegalStateException("server URL is required");
         }
-
-
-
+        /**
+         * Connect to JIRA using the configured credentials.
+         */
         final BasicCredentials creds = new BasicCredentials(login, password);
         final JiraClient jira = new JiraClient(serverURL, creds);
-
         try {
             /* Retrieve the issue from JIRA */
             Issue issue = jira.getIssue(issueKey);
+
             /* Add a comment to the issue */
-            issue.addComment(generateMessage(trigger, executionData));
+            String message = generateMessage(trigger, executionData);
+            issue.addComment(message);
 
         } catch (JiraException je) {
             je.printStackTrace(System.err);
@@ -69,7 +72,8 @@ public class JiraNotification implements NotificationPlugin {
     }
 
     /**
-     * Format the message to send
+     * Format the message to send using JIRA's wiki-ish https://jira.atlassian.com/secure/WikiRendererHelpAction.jspa
+     * Content includes execution and job info, as well as, options and failed nodes.
      * @param trigger Job trigger event
      * @param executionData    Job execution data
      * @return String formatted with job data
@@ -79,10 +83,48 @@ public class JiraNotification implements NotificationPlugin {
         Map jobdata = (Map) job;
         Object groupPath = jobdata.get("group");
         Object jobname = jobdata.get("name");
-        String jobdesc = (!isBlank(groupPath.toString()) ? groupPath + "/" : "") + jobname;
+        String jobgroup =  (!isBlank(groupPath.toString()) ? groupPath + "/" : "");
+        String jobdesc = (String)jobdata.get("description");
+        String emoticon = (trigger.equals("success") ? "(/)" : "(x)");
+        Timestamp date = (trigger.equals("running") ? (Timestamp)executionData.get("dateStarted") : (Timestamp)executionData.get("dateEnded"));
 
-        return "[" + trigger.toUpperCase() + "] \"" + jobdesc + "\" run by " + executionData.get("user") + ": " +
-                executionData.get("href");
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("{panel:title=Rundeck Job Notification}\n");
+        sb.append("h3. ").append(emoticon).append(" [#"+executionData.get("id"));
+        sb.append(" ").append(executionData.get("status"));
+        sb.append(" by " + executionData.get("user"));
+        sb.append(" at ").append(date);
+        sb.append("|").append(executionData.get("href")).append("]\n");
+
+        sb.append("\n");
+        sb.append("h4. Job: [").append(jobdata.get("project")+"] \"").append(jobgroup+jobname).append("\"\n");
+        sb.append("_").append(jobdesc).append("_\n");
+        sb.append("\n");
+
+        Map context = (Map) executionData.get("context");
+
+        Map options = (Map) context.get("option");
+        if (null != options && options.size()>0) {
+            sb.append("h6. User Options\n");
+            for (Object o : options.entrySet()) {
+                Map.Entry entry = (Map.Entry) o;
+                sb.append("* ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+            }
+        }
+        String status = (String)executionData.get("status");
+        if (status.equals("failed")) {
+            Map nodestatus = (Map)executionData.get("nodestatus");
+            sb.append("\n");
+            sb.append("h6. Nodes failed [").append(nodestatus.get("failed"))
+                    .append(" out of ").append(nodestatus.get("total")).append("]\n");
+            sb.append("* ").append(executionData.get("failedNodeListString")).append("\n");
+        }
+        sb.append("\n");
+        sb.append("Job execution output: ").append(executionData.get("href")).append("\n");
+
+        sb.append("{panel}");
+        return sb.toString();
     }
 
     private boolean isBlank(String string) {
