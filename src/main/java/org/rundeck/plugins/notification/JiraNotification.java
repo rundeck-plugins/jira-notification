@@ -105,11 +105,14 @@ public class JiraNotification implements NotificationPlugin {
         Map context = (Map) executionData.get("context");
 
         Map options = (Map) context.get("option");
+        Map secureOption = (Map) context.get("secureOption");
         if (null != options && options.size()>0) {
             sb.append("h6. User Options\n");
             for (Object o : options.entrySet()) {
                 Map.Entry entry = (Map.Entry) o;
-                sb.append("* ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+                if (secureOption == null || !secureOption.containsKey(entry.getKey())) {
+                    sb.append("* ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+                }
             }
         }
         String status = (String)executionData.get("status");
