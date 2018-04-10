@@ -1,9 +1,29 @@
-version = '1.0.0'
+plugins {
+    id 'pl.allegro.tech.build.axion-release' version '1.3.2'
+}
 defaultTasks 'clean','build'
 apply plugin: 'java'
 apply plugin: 'idea'
 sourceCompatibility = 1.5
 ext.rundeckPluginVersion= '1.1'
+
+
+scmVersion {
+    tag {
+        prefix = 'v'
+        versionSeparator = ''
+        def origDeserialize=deserialize
+        //apend .0 to satisfy semver if the tag version is only X.Y
+        deserialize = { config, position, tagName ->
+            def orig = origDeserialize(config, position, tagName)
+            if (orig.split('\\.').length < 3) {
+                orig += ".0"
+            }
+            orig
+        }
+    }
+}
+project.version = scmVersion.version
 
 /**
  * Set this to a comma-separated list of full classnames of your implemented Rundeck
@@ -52,7 +72,7 @@ jar {
     manifest {
         def libList = configurations.pluginLibs.collect{'lib/'+it.name}.join(' ')
         attributes 'Rundeck-Plugin-Classnames': pluginClassNames
-        attributes 'Rundeck-Plugin-File-Version': version
+        attributes 'Rundeck-Plugin-File-Version': project.version
         attributes 'Rundeck-Plugin-Version': rundeckPluginVersion, 'Rundeck-Plugin-Archive': 'true'
         attributes 'Rundeck-Plugin-Libs': "${libList}"
     }
