@@ -12,7 +12,6 @@ import net.rcarz.jiraclient.Issue;
 import net.rcarz.jiraclient.JiraClient;
 import net.rcarz.jiraclient.JiraException;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Map;
 
