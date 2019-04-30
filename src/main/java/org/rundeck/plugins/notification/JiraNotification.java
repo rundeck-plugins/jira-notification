@@ -84,7 +84,25 @@ public class JiraNotification implements NotificationPlugin {
         Object jobname = jobdata.get("name");
         String jobgroup =  (!isBlank(groupPath.toString()) ? groupPath + "/" : "");
         String jobdesc = (String)jobdata.get("description");
-        String emoticon = (trigger.equals("success") ? "(/)" : "(x)");
+        String emoticon = "";
+        switch (trigger) {
+            case "success":
+                emoticon = "(/)";
+                break;
+            case "running":
+                emoticon = "(i)";
+                break;
+            case "start":
+                emoticon = "(i)";
+                break;
+            case "failure":
+                emoticon = "(x)";
+                break;
+            default:
+                emoticon = "(x)";
+                break;
+        }
+
         Date date = (trigger.equals("running") ? (Date)executionData.get("dateStarted") : (Date)executionData.get("dateEnded"));
 
         StringBuilder sb = new StringBuilder();
