@@ -34,7 +34,7 @@ ext.pluginClassNames='org.rundeck.plugins.notification.JiraNotification'
 
 repositories {
     mavenCentral()
-    
+
     flatDir {
         dirs 'lib'
     }
@@ -53,11 +53,11 @@ configurations{
 dependencies {
     // add any third-party jar dependencies you wish to include in the plugin
     // using the `pluginLibs` configuration as shown here:
-    
+
     pluginLibs group: 'net.rcarz', name: 'jira-client', version: '0.5'
-    
-    //the compile dependency won't add the rundeck-core jar to the plugin contents
-    compile group: 'org.rundeck', name: 'rundeck-core', version: '3.0.12-20190114'
+
+    //the implementation dependency won't add the rundeck-core jar to the plugin contents
+    implementation group: 'org.rundeck', name: 'rundeck-core', version: '3.0.12-20190114'
 }
 
 // task to copy plugin libs to output/lib dir
@@ -86,7 +86,3 @@ jar {
     }
 }
 jar.dependsOn(copyToLib)
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.3'
-}
