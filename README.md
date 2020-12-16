@@ -13,7 +13,7 @@ Big props to [rcarz](https://github.com/rcarz) and his fantabulous
 
 ## Build / Deploy
 
-To build the project from source, run: `gradle build`.
+To build the project from source, run: `./gradlew build`.
 The resulting jar will be found in `build/libs`.
 
 Copy the  jar to Rundeck plugins directory. For example, on an RPM installation:
