@@ -1,11 +1,11 @@
 plugins {
-    id 'pl.allegro.tech.build.axion-release' version '1.10.0'
+    id 'pl.allegro.tech.build.axion-release' version '1.12.0'
 }
 defaultTasks 'clean','build'
 apply plugin: 'java'
 apply plugin: 'idea'
 sourceCompatibility = 1.8
-ext.rundeckPluginVersion= '1.1'
+ext.rundeckPluginVersion= '1.2'
 
 
 scmVersion {
@@ -35,6 +35,10 @@ ext.pluginClassNames='org.rundeck.plugins.notification.JiraNotification'
 repositories {
     mavenCentral()
 
+    maven {
+        url 'https://m2proxy.atlassian.com/repository/public'
+    }
+
     flatDir {
         dirs 'lib'
     }
@@ -54,10 +58,11 @@ dependencies {
     // add any third-party jar dependencies you wish to include in the plugin
     // using the `pluginLibs` configuration as shown here:
 
-    pluginLibs group: 'net.rcarz', name: 'jira-client', version: '0.5'
-
+    pluginLibs(group: 'com.atlassian.jira', name: 'jira-rest-java-client-app', version: '5.2.1') {
+        exclude group: 'org.slf4j'
+    }
     //the implementation dependency won't add the rundeck-core jar to the plugin contents
-    implementation group: 'org.rundeck', name: 'rundeck-core', version: '3.0.12-20190114'
+    implementation group: 'org.rundeck', name: 'rundeck-core', version: '3.3.4-20201007'
 }
 
 // task to copy plugin libs to output/lib dir
