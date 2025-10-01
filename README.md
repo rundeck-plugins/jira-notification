@@ -1,3 +1,6 @@
+# Deprecated
+
+This repository is no longer maintained and is only avaiable for historical example purposes.  It will be deleted at some point in the future.
 
 ## Description
 
